@@ -1,0 +1,217 @@
+﻿<Window x:Class="ExamGenerator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ExamGenerator" xmlns:utilities="clr-namespace:ExamGenerator.Utilities"
+        mc:Ignorable="d"
+        Title="ExamGenerator" Height="850" Width="1000"
+        WindowState="Maximized">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <Style x:Key="QuestionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="DarkSlateGray"/>
+        </Style>
+
+        <Style x:Key="QuestionText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="DarkSlateGray"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        </Style>
+
+        <Style x:Key="OptionText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="DarkSlateGray"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        </Style>
+
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="35"/>
+        </Style>
+
+        <DataTemplate x:Key="RadioButtonTemplate">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton Margin="10,10,0,10" IsChecked="{Binding IsChecked, Mode=TwoWay}" GroupName="GroupName">
+                    <RadioButton.Content>
+                        <TextBlock Text="{Binding OptionText, Mode=TwoWay}" Style="{StaticResource OptionText}" />
+                    </RadioButton.Content>
+                </RadioButton>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CheckBoxTemplate">
+            <StackPanel Orientation="Horizontal">
+                <CheckBox Margin="10,10,0,10" IsChecked="{Binding IsChecked, Mode=TwoWay}">
+                    <CheckBox.Content>
+                        <TextBlock Text="{Binding OptionText, Mode=TwoWay}" Style="{StaticResource OptionText}" />
+                    </CheckBox.Content>
+                </CheckBox>
+            </StackPanel>
+        </DataTemplate>
+
+        <utilities:OptionTemplateSelector x:Key="OptionTemplateSelector"
+                                          RadioButtonTemplate="{StaticResource RadioButtonTemplate}"
+                                          CheckBoxTemplate="{StaticResource CheckBoxTemplate}" />
+
+    </Window.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+        <DockPanel>
+            <ToolBarTray DockPanel.Dock="Top" IsLocked="True" >
+                <ToolBar>
+                    <Button Command="{Binding ImportButton}" Content="Import" />
+                </ToolBar>
+            </ToolBarTray>
+
+            <Grid>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid x:Name="MainGrid" Grid.Column="1" Margin="0,20"
+                  Visibility="{Binding IsImported, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="10 10 0 0" Background="WhiteSmoke">
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Text="Question "
+                                   Style="{StaticResource QuestionTitle}"
+                                   Margin="10,5,0,5"/>
+                            <TextBlock Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path= DataContext.QuestionNumber}"
+                                   Style="{StaticResource QuestionTitle}"
+                                   Margin="0,5,0,5"/>
+                            <TextBlock Text=" of " 
+                                   Style="{StaticResource QuestionTitle}"
+                                   Margin="0,5,0,5"/>
+                            <TextBlock Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DockPanel}}, Path= DataContext.Questions.Count}"
+                                   Style="{StaticResource QuestionTitle}"
+                                   Margin="0,5,0,5"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" CornerRadius="0 0 10 10" Background="White" MinHeight="300">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock x:Name="QuestionTextBlock" Grid.Row="0" 
+                                   Text="{Binding SelectedQuestion.QuestionText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource QuestionText}"
+                                   Margin="10"/>
+                            <ItemsControl Grid.Row="1" 
+                                      ItemsSource="{Binding SelectedQuestion.Options, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      ItemTemplateSelector="{StaticResource OptionTemplateSelector}">
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Border CornerRadius="2" Background="Gray" Margin="5,10">
+                            <Button Command="{Binding BackButton}" Content="Back" Style="{StaticResource ButtonStyle}"/>
+                        </Border>
+                        <Border CornerRadius="2" Background="Gray" Margin="5,10">
+                            <Button Command="{Binding NextButton}" Content="Next" Style="{StaticResource ButtonStyle}"/>
+                        </Border>
+                    </StackPanel>
+
+                    <Border Grid.Row="2" CornerRadius="2" Background="DarkSlateGray" Margin="5,10" HorizontalAlignment="Right">
+                        <Button Command="{Binding FinishButton}" Content="Check" Style="{StaticResource ButtonStyle}"/>
+                    </Border>
+
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Visibility="{Binding IsFinished, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="Correct: "
+                           Style="{StaticResource QuestionTitle}"
+                           Margin="0,10,5,10"/>
+                        <TextBlock Text="{Binding CorrectCounter, Mode=TwoWay}"
+                           Style="{StaticResource QuestionTitle}"
+                           Margin="0, 10, 10, 10"/>
+                        <TextBlock Text="Wrong: "
+                           Style="{StaticResource QuestionTitle}"
+                           Margin="0,10,5,10"/>
+                        <TextBlock Text="{Binding WrongCounter, Mode=TwoWay}"
+                           Style="{StaticResource QuestionTitle}"
+                           Margin="0,10,10,10"/>
+                    </StackPanel>
+
+                    <ItemsControl Grid.Row="4" 
+                         Visibility="{Binding IsFinished, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                         ItemsSource="{Binding Questions, Mode=TwoWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding Id, Mode=TwoWay}" Margin="2" Padding="2" 
+                                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path= DataContext.QuestionButton}" CommandParameter="{Binding .}">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsTrue, Mode=TwoWay}" Value="True">
+                                                    <Setter Property="Background" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsTrue, Mode=TwoWay}" Value="False">
+                                                    <Setter Property="Background" Value="Red"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+
+                <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="Please import a text file.">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=MainGrid, Path=Visibility}" Value="Visible">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </ScrollViewer>
+</Window>
+
+
+<!--<ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton Margin="10,10,0,10" IsChecked="{Binding IsChecked, Mode=TwoWay}" GroupName="GroupName">
+                                            <RadioButton.Content>
+                                                <TextBlock Text="{Binding OptionText, Mode=TwoWay}" Style="{StaticResource OptionText}" />
+                                            </RadioButton.Content>
+                                        </RadioButton>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>-->
