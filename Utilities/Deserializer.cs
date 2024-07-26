@@ -38,6 +38,7 @@ namespace ExamGenerator.Utilities
                     {
                         IsChecked = false,
                         OptionText = optionText,
+                        IsTrue = isAnswer
                     };
                     currentQuestion?.Options.Add(option);
                     if (isAnswer)

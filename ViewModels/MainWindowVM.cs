@@ -93,6 +93,7 @@ namespace ExamGenerator.ViewModels
         public ICommand NextButton { get; set; }
         public ICommand FinishButton { get; set; }
         public ICommand QuestionButton { get; set; }
+        public ICommand HideAnswersButton { get; set; }
 
         public MainWindowVM()
         {
@@ -100,8 +101,17 @@ namespace ExamGenerator.ViewModels
             FinishButton = new RelayCommand(OnFinish, (o) => { return true; });
             QuestionButton = new RelayCommand(OnQuestionButton, (o) => { return true; });
             ImportButton = new RelayCommand(OnImport, (o) => { return true; });
+            HideAnswersButton = new RelayCommand(OnHide, (o) => { return true; });
             BackButton = new RelayCommand(OnBack, (o) => { return SelectedQuestion != null && SelectedQuestion.Id - 1 != 0; });
             NextButton = new RelayCommand(OnNext, (o) => { return SelectedQuestion != null && Questions != null && SelectedQuestion.Id - 1 != Questions.Count - 1; });
+        }
+
+        private void OnHide(object obj)
+        {
+            IsFinished = false;
+
+            foreach (var question in Questions)
+                question.IsTrue = false;
         }
 
         private void OnQuestionButton(object obj)
@@ -150,7 +160,7 @@ namespace ExamGenerator.ViewModels
         private void OnImport(object obj)
         {
             var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            openFileDialog.Filter = "Md files (*.md)|*.md|Text files (*.txt)|*.txt|All files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == true)
             {
                 var filePath = openFileDialog.FileName;

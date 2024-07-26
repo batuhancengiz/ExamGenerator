@@ -24,34 +24,15 @@ namespace ExamGenerator.Models
 
         public bool CheckAnswer()
         {
-            bool isCorrect = true;
-
-            var selectionCounter = 0;
+            int i = 0;
             foreach (var option in Options)
             {
-                if (option.IsChecked)
-                {
-                    selectionCounter++;
-                }
+                if (option.IsTrue == option.IsChecked)
+                    i++;
             }
+            IsTrue = Options.Count == i;
+            return IsTrue;
 
-            if (selectionCounter != AnswerIndexes.Count)
-            {
-                return false;
-            }
-
-            foreach (var index in AnswerIndexes)
-            {
-                if (!Options[index].IsChecked)
-                {
-                    isCorrect = false;
-                    break;
-                }
-            }
-
-            IsTrue = isCorrect;
-
-            return isCorrect;
         }
     }
 }

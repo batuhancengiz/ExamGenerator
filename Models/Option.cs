@@ -26,7 +26,18 @@ namespace ExamGenerator.Models
                 _optionText = value;
                 OnPropertyChanged(nameof(OptionText));
             }
+        }
 
+        private bool _isTrue;
+
+        public bool IsTrue
+        {
+            get => _isTrue;
+            set
+            {
+                _isTrue = value; 
+                OnPropertyChanged(nameof(IsTrue));
+            }
         }
     }
 }

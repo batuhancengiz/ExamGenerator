@@ -16,11 +16,14 @@
             <Setter Property="Foreground" Value="DarkSlateGray"/>
         </Style>
 
-        <Style x:Key="QuestionText" TargetType="TextBlock">
+        <Style x:Key="QuestionText" TargetType="TextBox">
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="DarkSlateGray"/>
             <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="IsHitTestVisible" Value="True"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
         <Style x:Key="OptionText" TargetType="TextBlock">
@@ -36,7 +39,7 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="80"/>
+            <Setter Property="Width" Value="100"/>
             <Setter Property="Height" Value="35"/>
         </Style>
 
@@ -44,7 +47,24 @@
             <StackPanel Orientation="Horizontal">
                 <RadioButton Margin="10,10,0,10" IsChecked="{Binding IsChecked, Mode=TwoWay}" GroupName="GroupName">
                     <RadioButton.Content>
-                        <TextBlock Text="{Binding OptionText, Mode=TwoWay}" Style="{StaticResource OptionText}" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding OptionText, Mode=TwoWay}" >
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource OptionText}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsTrue, Mode=TwoWay}" Value="True" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path= DataContext.IsFinished}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Background" Value="LightGreen"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
             </StackPanel>
@@ -54,7 +74,24 @@
             <StackPanel Orientation="Horizontal">
                 <CheckBox Margin="10,10,0,10" IsChecked="{Binding IsChecked, Mode=TwoWay}">
                     <CheckBox.Content>
-                        <TextBlock Text="{Binding OptionText, Mode=TwoWay}" Style="{StaticResource OptionText}" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding OptionText, Mode=TwoWay}" >
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource OptionText}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsTrue, Mode=TwoWay}" Value="True" />
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path= DataContext.IsFinished}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Background" Value="LightGreen"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
                     </CheckBox.Content>
                 </CheckBox>
             </StackPanel>
@@ -116,13 +153,13 @@
                                 <RowDefinition Height="auto"/>
                                 <RowDefinition Height="auto"/>
                             </Grid.RowDefinitions>
-                            <TextBlock x:Name="QuestionTextBlock" Grid.Row="0" 
-                                   Text="{Binding SelectedQuestion.QuestionText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource QuestionText}"
-                                   Margin="10"/>
+                            <TextBox x:Name="QuestionTextBlock" Grid.Row="0"
+                                       Text="{Binding SelectedQuestion.QuestionText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       Style="{StaticResource QuestionText}"
+                                       Margin="10"/>
                             <ItemsControl Grid.Row="1" 
-                                      ItemsSource="{Binding SelectedQuestion.Options, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      ItemTemplateSelector="{StaticResource OptionTemplateSelector}">
+                                          ItemsSource="{Binding SelectedQuestion.Options, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemTemplateSelector="{StaticResource OptionTemplateSelector}">
                             </ItemsControl>
                         </Grid>
                     </Border>
@@ -140,7 +177,11 @@
                         <Button Command="{Binding FinishButton}" Content="Check" Style="{StaticResource ButtonStyle}"/>
                     </Border>
 
-                    <StackPanel Grid.Row="3" Orientation="Horizontal" Visibility="{Binding IsFinished, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Grid.Row="2" CornerRadius="2" Background="DarkSlateGray" Margin="5,10" HorizontalAlignment="Left">
+                        <Button Command="{Binding HideAnswersButton}" Content="Hide Answers" Style="{StaticResource ButtonStyle}"/>
+                    </Border>
+
+                    <StackPanel Grid.Row="4" Orientation="Horizontal" Visibility="{Binding IsFinished, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock Text="Correct: "
                            Style="{StaticResource QuestionTitle}"
                            Margin="0,10,5,10"/>
@@ -155,9 +196,8 @@
                            Margin="0,10,10,10"/>
                     </StackPanel>
 
-                    <ItemsControl Grid.Row="4" 
-                         Visibility="{Binding IsFinished, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}"
-                         ItemsSource="{Binding Questions, Mode=TwoWay}">
+                    <ItemsControl Grid.Row="3" 
+                                  ItemsSource="{Binding Questions, Mode=TwoWay}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -165,16 +205,16 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Content="{Binding Id, Mode=TwoWay}" Margin="2" Padding="2" 
+                                <Button Content="{Binding Id, Mode=TwoWay}" Margin="2" Padding="2" Width="35" FontWeight="Medium"
                                         Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path= DataContext.QuestionButton}" CommandParameter="{Binding .}">
                                     <Button.Style>
                                         <Style TargetType="Button">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsTrue, Mode=TwoWay}" Value="True">
-                                                    <Setter Property="Background" Value="Green"/>
+                                                    <Setter Property="Background" Value="LightGreen"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsTrue, Mode=TwoWay}" Value="False">
-                                                    <Setter Property="Background" Value="Red"/>
+                                                    <Setter Property="Background" Value="PaleVioletRed"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -186,32 +226,19 @@
                 </Grid>
 
                 <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Text="Please import a text file.">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
+                    <TextBox Text="Please import a text or md file." >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox" BasedOn="{StaticResource QuestionText}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding ElementName=MainGrid, Path=Visibility}" Value="Visible">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                        </TextBox.Style>
+                    </TextBox>
                 </Grid>
             </Grid>
         </DockPanel>
     </ScrollViewer>
 </Window>
-
-
-<!--<ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <RadioButton Margin="10,10,0,10" IsChecked="{Binding IsChecked, Mode=TwoWay}" GroupName="GroupName">
-                                            <RadioButton.Content>
-                                                <TextBlock Text="{Binding OptionText, Mode=TwoWay}" Style="{StaticResource OptionText}" />
-                                            </RadioButton.Content>
-                                        </RadioButton>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>-->
